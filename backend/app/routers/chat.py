@@ -1,0 +1,63 @@
+from fastapi import APIRouter, HTTPException, Header
+from app.models.schemas import ChatRequest, ChatResponse
+from app.services.openai_service import openai_service
+from app.services.supabase_service import supabase_service
+
+router = APIRouter(prefix="/chat", tags=["chat"])
+
+def get_user_id(authorization: str) -> str:
+    """Helper function to extract and validate user ID from token."""
+    token = authorization.replace("Bearer ", "")
+    user_response = supabase_service.get_user(token)
+    if not user_response.user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return user_response.user.id
+
+@router.post("/", response_model=ChatResponse)
+async def chat(
+    request: ChatRequest,
+    authorization: str = Header(...)
+):
+    """
+    Send a message to the AI stylist.
+    The AI is provided with the user's wardrobe and chat history as context.
+    """
+    user_id = get_user_id(authorization)
+
+    try:
+        # Get user's wardrobe items
+        wardrobe_items = supabase_service.get_wardrobe_items(user_id)
+
+        # Get AI response
+        ai_response = openai_service.chat_with_stylist(
+            user_message=request.message,
+            chat_history=[msg.dict() for msg in request.history],
+            wardrobe_items=wardrobe_items
+        )
+
+        # Extract any item IDs referenced in the response (simple extraction)
+        # This could be enhanced with more sophisticated parsing
+        referenced_items = []
+        for item in wardrobe_items:
+            if item['id'] in ai_response or item['title'] in ai_response:
+                referenced_items.append(item['id'])
+
+        return ChatResponse(
+            message=ai_response,
+            referenced_items=referenced_items
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+
+@router.post("/clear")
+async def clear_chat(authorization: str = Header(...)):
+    """
+    Clear chat history.
+    Note: Chat history is maintained client-side in this implementation.
+    This endpoint exists for consistency but doesn't perform server-side action.
+    """
+    # Verify user is authenticated
+    get_user_id(authorization)
+
+    return {"message": "Chat cleared successfully"}
