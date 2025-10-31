@@ -1,6 +1,8 @@
-# AI Stylist - Personal Wardrobe Assistant
+# StyleIt - Personal Wardrobe Assistant
 
 A full-stack application that helps users organize their wardrobe and get AI-powered styling advice. Users can scan clothing items using computer vision, manage their wardrobe, and chat with an AI stylist for outfit recommendations.
+
+**🚀 Ready for deployment on Vercel + Render!**
 
 ## Features
 
@@ -125,6 +127,30 @@ npm run dev
 ```
 
 Access the application at http://localhost:3000
+
+## Deployment
+
+This application is ready to deploy to production!
+
+### Quick Deploy
+
+1. **Backend** → Deploy to [Render.com](https://render.com) (free tier available)
+2. **Frontend** → Deploy to [Vercel](https://vercel.com) (free tier available)
+
+### Detailed Instructions
+
+- **Step-by-step guide**: See [DEPLOYMENT.md](DEPLOYMENT.md)
+- **Quick checklist**: See [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)
+- **Backend-specific**: See [backend/README.md](backend/README.md)
+
+### What's Included
+
+✅ `vercel.json` - Vercel configuration
+✅ `render.yaml` - Render Blueprint configuration
+✅ Updated CORS for production
+✅ Environment variable templates
+✅ Health check endpoints
+✅ Auto-deploy from GitHub
 
 ## Usage
 

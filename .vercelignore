@@ -1,0 +1,12 @@
+backend/
+backend/**
+*.pyc
+__pycache__/
+venv/
+.env
+.env.local
+node_modules/
+.git/
+*.md
+!README.md
+
