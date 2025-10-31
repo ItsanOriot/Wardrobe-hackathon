@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { wardrobeAPI } from '@/lib/api';
 
 interface WardrobeItem {
@@ -178,11 +179,14 @@ export default function ItemEditModal({ isOpen, onClose, item, onSuccess }: Item
           {/* Image preview */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
-            <img
-              src={item.image_url}
-              alt={item.title}
-              className="w-full h-48 object-cover rounded-md"
-            />
+            <div className="relative w-full h-48">
+              <Image
+                src={item.image_url}
+                alt={item.title}
+                fill
+                className="object-cover rounded-md"
+              />
+            </div>
           </div>
         </div>
 

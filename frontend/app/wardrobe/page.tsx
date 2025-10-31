@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { getAccessToken } from '@/lib/supabase';
 import { wardrobeAPI } from '@/lib/api';
 import FilterPanel from '@/components/FilterPanel';
@@ -30,18 +31,7 @@ export default function WardrobePage() {
   });
   const router = useRouter();
 
-  useEffect(() => {
-    // Check authentication
-    const token = getAccessToken();
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetchItems();
-  }, [router, filters]);
-
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
       const filterParams: any = {};
@@ -57,7 +47,18 @@ export default function WardrobePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    // Check authentication
+    const token = getAccessToken();
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    fetchItems();
+  }, [router, fetchItems]);
 
   const handleItemClick = (item: WardrobeItem) => {
     setSelectedItem(item);
@@ -135,9 +136,11 @@ export default function WardrobePage() {
                   className="group bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-soft hover:shadow-medium transition-all duration-300 cursor-pointer hover:scale-105 border border-beige-light"
                 >
                   <div className="aspect-square relative overflow-hidden">
-                    <img
+                    <Image
                       src={item.image_url}
                       alt={item.title}
+                      width={300}
+                      height={300}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

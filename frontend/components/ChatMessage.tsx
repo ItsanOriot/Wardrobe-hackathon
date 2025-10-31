@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 interface ChatImageReference {
   item_id: string;
   title: string;
@@ -67,9 +69,11 @@ export default function ChatMessage({ role, content, images = [] }: ChatMessageP
           <div className="mt-4 flex flex-wrap gap-3">
             {images.map((img) => (
               <div key={img.item_id} className="flex flex-col items-center">
-                <img
+                <Image
                   src={img.image_url}
                   alt={img.title}
+                  width={112}
+                  height={112}
                   className="w-28 h-28 object-cover rounded-xl border-2 border-beige-light shadow-medium hover:scale-110 transition-transform cursor-pointer"
                   title={img.title}
                 />
