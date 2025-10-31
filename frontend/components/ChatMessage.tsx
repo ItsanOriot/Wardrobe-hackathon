@@ -49,34 +49,31 @@ export default function ChatMessage({ role, content, images = [] }: ChatMessageP
   const isUser = role === 'user';
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 animate-fadeIn`}>
       <div
-        className={`max-w-[80%] ${
+        className={`max-w-[80%] rounded-2xl px-5 py-4 shadow-soft ${
           isUser
             ? 'bg-beige text-white'
-            : 'bg-white border border-beige-light text-gray-800'
+            : 'bg-white/90 backdrop-blur-sm text-gray-800 border border-beige-light'
         }`}
       >
-        {/* Message content */}
-        <div className="px-4 py-3 rounded-lg">
-          <div
-            className="whitespace-pre-wrap break-words"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
-        </div>
+        <div
+          className={`whitespace-pre-wrap break-words text-sm ${isUser ? 'font-medium' : ''}`}
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
 
         {/* Inline images */}
         {images && images.length > 0 && (
-          <div className="px-4 pb-3 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-3">
             {images.map((img) => (
               <div key={img.item_id} className="flex flex-col items-center">
                 <img
                   src={img.image_url}
                   alt={img.title}
-                  className="w-24 h-24 object-cover rounded-lg border border-beige-light"
+                  className="w-28 h-28 object-cover rounded-xl border-2 border-beige-light shadow-medium hover:scale-110 transition-transform cursor-pointer"
                   title={img.title}
                 />
-                <p className="text-xs mt-1 text-center max-w-24 truncate">{img.title}</p>
+                <p className="text-xs mt-2 text-center max-w-28 truncate font-medium">{img.title}</p>
               </div>
             ))}
           </div>

@@ -129,15 +129,17 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-beige-lightest">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-beige-50 via-beige-100 to-beige-200">
       {/* Header */}
-      <header className="bg-white border-b border-beige-light px-6 py-4 flex items-center justify-between">
+      <header className="bg-white/80 backdrop-blur-xl border-b border-beige-light/60 px-6 py-4 flex items-center justify-between shadow-soft">
         <DropdownMenu />
-        <h1 className="text-xl font-semibold text-gray-800">AI Stylist</h1>
+        <h1 className="text-2xl font-bold text-beige-dark">
+          StyleIt
+        </h1>
         <div className="flex items-center gap-3">
           <button
             onClick={handleClearChat}
-            className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            className="text-sm text-gray-700 hover:text-gray-900 hover:bg-beige-50 px-3 py-1.5 rounded-lg transition-all font-medium"
           >
             Clear Chat
           </button>
@@ -151,7 +153,7 @@ export default function ChatPage() {
           />
           <label
             htmlFor="file-upload"
-            className={`w-10 h-10 rounded-full bg-beige hover:bg-beige-dark text-white flex items-center justify-center cursor-pointer transition-colors ${
+            className={`w-11 h-11 rounded-full bg-beige hover:bg-beige-dark text-white flex items-center justify-center cursor-pointer transition-all shadow-medium hover:shadow-glow ${
               scanLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
@@ -178,10 +180,48 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-500">
-              <p className="text-lg mb-2">Welcome to your AI Stylist!</p>
-              <p className="text-sm">
-                Upload clothing items using the camera icon or ask me for styling advice.
+            <div className="text-center max-w-2xl mx-auto px-4 animate-fadeIn">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-beige shadow-glow mb-6">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                </svg>
+              </div>
+              <h2 className="text-4xl font-bold text-gray-800 mb-3">
+                Welcome to StyleIt
+              </h2>
+              <p className="text-gray-600 mb-8 font-medium text-lg">Try asking me:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => setInput("What should I wear to a casual dinner?")}
+                  className="px-5 py-4 bg-white/90 backdrop-blur-sm border border-beige-light rounded-2xl text-sm text-left text-gray-700 font-medium hover:border-beige hover:shadow-medium transition-all duration-200 hover:scale-105"
+                >
+                  <span className="text-2xl mr-3">💬</span>
+                  What should I wear to a casual dinner?
+                </button>
+                <button
+                  onClick={() => setInput("Help me create a professional work outfit")}
+                  className="px-5 py-4 bg-white/90 backdrop-blur-sm border border-beige-light rounded-2xl text-sm text-left text-gray-700 font-medium hover:border-beige hover:shadow-medium transition-all duration-200 hover:scale-105"
+                >
+                  <span className="text-2xl mr-3">👔</span>
+                  Help me create a professional work outfit
+                </button>
+                <button
+                  onClick={() => setInput("What colors go well together in my wardrobe?")}
+                  className="px-5 py-4 bg-white/90 backdrop-blur-sm border border-beige-light rounded-2xl text-sm text-left text-gray-700 font-medium hover:border-beige hover:shadow-medium transition-all duration-200 hover:scale-105"
+                >
+                  <span className="text-2xl mr-3">🎨</span>
+                  What colors go well together in my wardrobe?
+                </button>
+                <button
+                  onClick={() => setInput("Suggest an outfit for a weekend brunch")}
+                  className="px-5 py-4 bg-white/90 backdrop-blur-sm border border-beige-light rounded-2xl text-sm text-left text-gray-700 font-medium hover:border-beige hover:shadow-medium transition-all duration-200 hover:scale-105"
+                >
+                  <span className="text-2xl mr-3">☀️</span>
+                  Suggest an outfit for a weekend brunch
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg inline-block mt-8">
+                Upload clothing items using the camera icon above to get started
               </p>
             </div>
           </div>
@@ -207,22 +247,22 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSendMessage} className="bg-white border-t border-beige-light px-6 py-4">
-        <div className="flex gap-3">
+      <form onSubmit={handleSendMessage} className="bg-white/80 backdrop-blur-xl border-t border-beige-light/60 px-6 py-4 shadow-soft">
+        <div className="flex gap-3 max-w-4xl mx-auto">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
-            placeholder="Ask your stylist anything..."
-            className="flex-1 px-4 py-2 border border-beige-light rounded-lg focus:outline-none focus:ring-2 focus:ring-beige disabled:opacity-50"
+            placeholder="Ask me anything about your wardrobe..."
+            className="flex-1 px-5 py-3 bg-white border border-beige-light rounded-xl focus:outline-none focus:ring-2 focus:ring-beige focus:border-beige transition-all font-medium text-gray-700 placeholder-gray-400"
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="px-6 py-2 bg-beige hover:bg-beige-dark text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3 bg-beige hover:bg-beige-dark text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-medium hover:shadow-glow"
           >
-            Send
+            {loading ? 'Sending...' : 'Send'}
           </button>
         </div>
       </form>
