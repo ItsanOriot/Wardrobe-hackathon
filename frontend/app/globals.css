@@ -4,13 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --beige-lightest: #E4DDCD;
-  --beige-light: #D4C4B0;
-  --beige: #C3A27C;
-  --beige-dark: #A98862;
-}
-
 body {
   background: linear-gradient(to bottom right, #F5F0E8, #EBE1D1, #E4DDCD);
   min-height: 100vh;

@@ -263,36 +263,8 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
         )}
       </div>
 
-      {/* Custom Styles */}
+      {/* Custom Slider Styles */}
       <style jsx>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        .animate-slideDown {
-          animation: slideDown 0.2s ease-out;
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-
         .slider-thumb::-webkit-slider-thumb {
           appearance: none;
           width: 20px;
@@ -326,10 +298,6 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
           background: linear-gradient(135deg, #A98862 0%, #8F7252 100%);
           box-shadow: 0 4px 12px rgba(195, 162, 124, 0.6);
           transform: scale(1.2);
-        }
-
-        select option {
-          padding: 8px;
         }
       `}</style>
     </div>

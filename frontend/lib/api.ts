@@ -60,8 +60,6 @@ export const authAPI = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
-
-  logout: () => fetchAPI('/auth/logout', { method: 'POST' }),
 };
 
 // Scan API
@@ -170,10 +168,5 @@ export const chatAPI = {
     fetchAPI('/chat/', {
       method: 'POST',
       body: JSON.stringify({ message, history }),
-    }),
-
-  clearChat: () =>
-    fetchAPI('/chat/clear', {
-      method: 'POST',
     }),
 };

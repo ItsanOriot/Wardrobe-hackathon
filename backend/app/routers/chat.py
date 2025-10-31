@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Header
 from app.models.schemas import ChatRequest, ChatResponse, ChatImageReference
 from app.services.openai_service import openai_service
 from app.services.supabase_service import supabase_service
-import re
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -59,15 +58,3 @@ async def chat(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
-
-@router.post("/clear")
-async def clear_chat(authorization: str = Header(...)):
-    """
-    Clear chat history.
-    Note: Chat history is maintained client-side in this implementation.
-    This endpoint exists for consistency but doesn't perform server-side action.
-    """
-    # Verify user is authenticated
-    get_user_id(authorization)
-
-    return {"message": "Chat cleared successfully"}
