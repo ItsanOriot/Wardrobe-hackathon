@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { wardrobeAPI } from '@/lib/api';
 
 interface WardrobeItem {
@@ -34,7 +34,7 @@ export default function ItemEditModal({ isOpen, onClose, item, onSuccess }: Item
   const [deleting, setDeleting] = useState(false);
 
   // Update state when item changes
-  useState(() => {
+  useEffect(() => {
     if (item) {
       setTitle(item.title);
       setDescription(item.description);
@@ -42,7 +42,7 @@ export default function ItemEditModal({ isOpen, onClose, item, onSuccess }: Item
       setWarmth(item.warmth);
       setFormality(item.formality);
     }
-  });
+  }, [item]);
 
   const handleSave = async () => {
     if (!item) return;
@@ -145,17 +145,34 @@ export default function ItemEditModal({ isOpen, onClose, item, onSuccess }: Item
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Formality: {formality}/10
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Formality Level
             </label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={formality}
-              onChange={(e) => setFormality(parseInt(e.target.value))}
-              className="w-full"
-            />
+            <div className="bg-beige-lightest/30 rounded-lg p-4">
+              <div className="flex items-center justify-center mb-3">
+                <span className="px-4 py-2 bg-white rounded-lg text-lg font-semibold text-beige border border-beige-light">
+                  {formality}/10
+                </span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={formality}
+                onChange={(e) => setFormality(parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"
+                style={{
+                  background: `linear-gradient(to right, #C3A27C 0%, #C3A27C ${(formality - 1) * 11.11}%, #E5E7EB ${(formality - 1) * 11.11}%, #E5E7EB 100%)`
+                }}
+              />
+              <div className="flex justify-between mt-2 px-1">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                  <span key={num} className="text-xs text-gray-400 font-medium">
+                    {num}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Image preview */}
@@ -200,6 +217,43 @@ export default function ItemEditModal({ isOpen, onClose, item, onSuccess }: Item
           </button>
         </div>
       </div>
+
+      {/* Custom Slider Styles */}
+      <style jsx>{`
+        .slider-thumb::-webkit-slider-thumb {
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #C3A27C;
+          cursor: pointer;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          transition: all 0.2s;
+        }
+
+        .slider-thumb::-webkit-slider-thumb:hover {
+          background: #A98862;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          transform: scale(1.1);
+        }
+
+        .slider-thumb::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #C3A27C;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          transition: all 0.2s;
+        }
+
+        .slider-thumb::-moz-range-thumb:hover {
+          background: #A98862;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          transform: scale(1.1);
+        }
+      `}</style>
     </div>
   );
 }

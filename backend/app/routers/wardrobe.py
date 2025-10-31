@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Header, File, UploadFile, Query
+from fastapi import APIRouter, HTTPException, Header, File, UploadFile, Query, Form
 from typing import Optional
 from app.models.schemas import WardrobeItem, WardrobeItemCreate, WardrobeItemUpdate
 from app.services.supabase_service import supabase_service
@@ -10,11 +10,20 @@ router = APIRouter(prefix="/wardrobe", tags=["wardrobe"])
 
 def get_user_id(authorization: str) -> str:
     """Helper function to extract and validate user ID from token."""
-    token = authorization.replace("Bearer ", "")
-    user_response = supabase_service.get_user(token)
-    if not user_response.user:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    return user_response.user.id
+    try:
+        token = authorization.replace("Bearer ", "")
+        user_response = supabase_service.get_user(token)
+        if not user_response.user:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return user_response.user.id
+    except Exception as e:
+        error_msg = str(e)
+        if "expired" in error_msg.lower():
+            raise HTTPException(status_code=401, detail="Token expired. Please log in again.")
+        elif "invalid" in error_msg.lower():
+            raise HTTPException(status_code=401, detail="Invalid token. Please log in again.")
+        else:
+            raise HTTPException(status_code=401, detail=f"Authentication failed: {error_msg}")
 
 @router.get("/", response_model=list[WardrobeItem])
 async def get_wardrobe(
@@ -39,11 +48,11 @@ async def get_wardrobe(
 
 @router.post("/", response_model=WardrobeItem)
 async def create_wardrobe_item(
-    title: str,
-    description: str,
-    color: str,
-    warmth: str,
-    formality: int,
+    title: str = Form(...),
+    description: str = Form(...),
+    color: str = Form(...),
+    warmth: str = Form(...),
+    formality: str = Form(...),
     file: UploadFile = File(...),
     authorization: str = Header(...)
 ):
@@ -51,7 +60,38 @@ async def create_wardrobe_item(
     Create a new wardrobe item with an image.
     This is called after the user confirms the scan preview.
     """
+    # Log incoming data for debugging
+    print(f"\n=== WARDROBE CREATE REQUEST ===")
+    print(f"Title: {title!r} (type: {type(title).__name__})")
+    print(f"Description: {description!r} (type: {type(description).__name__})")
+    print(f"Color: {color!r} (type: {type(color).__name__})")
+    print(f"Warmth: {warmth!r} (type: {type(warmth).__name__})")
+    print(f"Formality: {formality!r} (type: {type(formality).__name__})")
+    print(f"File: {file.filename if file else None}")
+    print(f"Authorization: {authorization[:20] if authorization else None}...")
+
     user_id = get_user_id(authorization)
+
+    # Convert formality from string to int (FormData sends all values as strings)
+    try:
+        formality_int = int(formality)
+        if formality_int < 1 or formality_int > 10:
+            raise ValueError("Formality must be between 1 and 10")
+    except (ValueError, TypeError) as e:
+        print(f"Formality conversion error: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid formality value: {str(e)}")
+
+    # Validate color and warmth are in allowed values
+    valid_colors = ["Black", "White", "Gray", "Blue", "Brown", "Green", "Red", "Pink", "Yellow", "Purple", "Orange"]
+    valid_warmths = ["Cold", "Cool", "Neutral", "Warm", "Hot"]
+
+    if color not in valid_colors:
+        print(f"Invalid color: {color!r}. Valid: {valid_colors}")
+        raise HTTPException(status_code=400, detail=f"Invalid color '{color}'. Must be one of: {', '.join(valid_colors)}")
+
+    if warmth not in valid_warmths:
+        print(f"Invalid warmth: {warmth!r}. Valid: {valid_warmths}")
+        raise HTTPException(status_code=400, detail=f"Invalid warmth '{warmth}'. Must be one of: {', '.join(valid_warmths)}")
 
     # Check wardrobe limit (100 items)
     item_count = supabase_service.count_wardrobe_items(user_id)
@@ -87,7 +127,7 @@ async def create_wardrobe_item(
             "description": description,
             "color": color,
             "warmth": warmth,
-            "formality": formality,
+            "formality": formality_int,
             "image_url": image_url
         }
 
@@ -113,7 +153,7 @@ async def update_wardrobe_item(
     user_id = get_user_id(authorization)
 
     # Filter out None values
-    update_data = {k: v for k, v in item_update.dict().items() if v is not None}
+    update_data = {k: v for k, v in item_update.model_dump().items() if v is not None}
 
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")

@@ -45,6 +45,7 @@ class UserLogin(BaseModel):
 
 class AuthResponse(BaseModel):
     access_token: str
+    refresh_token: Optional[str] = None
     token_type: str = "bearer"
     user_id: str
 
@@ -57,6 +58,12 @@ class ChatRequest(BaseModel):
     message: str
     history: list[ChatMessage] = []
 
+class ChatImageReference(BaseModel):
+    item_id: str
+    title: str
+    image_url: str
+
 class ChatResponse(BaseModel):
     message: str
     referenced_items: list[str] = []  # Item IDs referenced in response
+    images: list[ChatImageReference] = []  # Images of referenced items

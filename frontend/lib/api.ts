@@ -1,4 +1,4 @@
-import { getAccessToken } from './supabase';
+import { getAccessToken, removeAccessToken, removeRefreshToken, removeUserId } from './supabase';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -6,9 +6,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const token = getAccessToken();
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
   };
 
   if (token) {
@@ -17,8 +16,28 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
-    headers,
+    headers: {
+      ...headers,
+      ...(typeof options.headers === 'object' && options.headers !== null && !(options.headers instanceof Headers)
+        ? (options.headers as Record<string, string>)
+        : {}),
+    },
   });
+
+  // Handle 401 Unauthorized (token expired or invalid)
+  if (response.status === 401) {
+    // Clear auth tokens and redirect to login
+    removeAccessToken();
+    removeRefreshToken();
+    removeUserId();
+
+    // Redirect to login page
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
+
+    throw new Error('Session expired. Please log in again.');
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
@@ -113,8 +132,15 @@ export const wardrobeAPI = {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to create item' }));
-      throw new Error(error.detail || 'Failed to create item');
+      let errorMessage = 'Failed to create item';
+      try {
+        const error = await response.json();
+        errorMessage = error.detail || error.message || errorMessage;
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
 
     return response.json();

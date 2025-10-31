@@ -8,9 +8,16 @@ import ChatMessage from '@/components/ChatMessage';
 import DropdownMenu from '@/components/DropdownMenu';
 import ScanPreviewModal from '@/components/ScanPreviewModal';
 
+interface ChatImageReference {
+  item_id: string;
+  title: string;
+  image_url: string;
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  images?: ChatImageReference[];
 }
 
 export default function ChatPage() {
@@ -38,6 +45,26 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Format markdown in text
+  const formatMarkdown = (text: string): string => {
+    // Bold: **text** or __text__
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+    // Italic: *text* or _text_
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    text = text.replace(/_(.+?)_/g, '<em>$1</em>');
+
+    // Lists: - item or * item
+    text = text.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+
+    // Line breaks
+    text = text.replace(/\n/g, '<br />');
+
+    return text;
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
@@ -49,7 +76,12 @@ export default function ChatPage() {
 
     try {
       const response = await chatAPI.sendMessage(userMessage, messages);
-      setMessages((prev) => [...prev, { role: 'assistant', content: response.message }]);
+      const formattedContent = formatMarkdown(response.message);
+      setMessages((prev) => [...prev, {
+        role: 'assistant',
+        content: formattedContent,
+        images: response.images || []
+      }]);
     } catch (error: any) {
       setMessages((prev) => [
         ...prev,
@@ -156,7 +188,7 @@ export default function ChatPage() {
         ) : (
           <>
             {messages.map((msg, idx) => (
-              <ChatMessage key={idx} role={msg.role} content={msg.content} />
+              <ChatMessage key={idx} role={msg.role} content={msg.content} images={msg.images} />
             ))}
             {loading && (
               <div className="flex justify-start mb-4">

@@ -25,6 +25,25 @@ export const removeAccessToken = () => {
   }
 };
 
+export const getRefreshToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('refresh_token');
+  }
+  return null;
+};
+
+export const setRefreshToken = (token: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('refresh_token', token);
+  }
+};
+
+export const removeRefreshToken = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('refresh_token');
+  }
+};
+
 export const getUserId = () => {
   if (typeof window !== 'undefined') {
     return localStorage.getItem('user_id');

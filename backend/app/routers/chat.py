@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, Header
-from app.models.schemas import ChatRequest, ChatResponse
+from app.models.schemas import ChatRequest, ChatResponse, ChatImageReference
 from app.services.openai_service import openai_service
 from app.services.supabase_service import supabase_service
+import re
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -31,20 +32,29 @@ async def chat(
         # Get AI response
         ai_response = openai_service.chat_with_stylist(
             user_message=request.message,
-            chat_history=[msg.dict() for msg in request.history],
+            chat_history=[msg.model_dump() for msg in request.history],
             wardrobe_items=wardrobe_items
         )
 
-        # Extract any item IDs referenced in the response (simple extraction)
-        # This could be enhanced with more sophisticated parsing
+        # Extract any item IDs and titles referenced in the response
         referenced_items = []
+        images = []
+
         for item in wardrobe_items:
-            if item['id'] in ai_response or item['title'] in ai_response:
+            # Check if item title or ID is mentioned in the response
+            if item['title'].lower() in ai_response.lower() or item['id'] in ai_response:
                 referenced_items.append(item['id'])
+                # Add image reference
+                images.append(ChatImageReference(
+                    item_id=item['id'],
+                    title=item['title'],
+                    image_url=item['image_url']
+                ))
 
         return ChatResponse(
             message=ai_response,
-            referenced_items=referenced_items
+            referenced_items=referenced_items,
+            images=images
         )
 
     except Exception as e:

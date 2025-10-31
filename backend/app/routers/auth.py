@@ -13,12 +13,23 @@ async def signup(user: UserSignup):
         if not response.user:
             raise HTTPException(status_code=400, detail="Failed to create account")
 
+        # Handle case where email confirmation is required (session will be None)
+        if response.session is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Email confirmation required. Please check your email to verify your account."
+            )
+
         return AuthResponse(
             access_token=response.session.access_token,
             user_id=response.user.id
         )
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        print(f"Signup error: {str(e)}")
+        print(f"Error type: {type(e)}")
+        raise HTTPException(status_code=400, detail=f"Signup failed: {str(e)}")
 
 @router.post("/login", response_model=AuthResponse)
 async def login(user: UserLogin):
@@ -29,12 +40,19 @@ async def login(user: UserLogin):
         if not response.user:
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
+        if response.session is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
         return AuthResponse(
             access_token=response.session.access_token,
             user_id=response.user.id
         )
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        print(f"Login error: {str(e)}")
+        print(f"Error type: {type(e)}")
+        raise HTTPException(status_code=401, detail=f"Login failed: {str(e)}")
 
 @router.post("/logout")
 async def logout():

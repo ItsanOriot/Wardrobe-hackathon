@@ -35,6 +35,11 @@ async def scan_clothing(
         # Analyze image with GPT-4o Vision
         scan_result = openai_service.scan_clothing_image(compressed_image)
 
+        print(f"\n=== SCAN RESULT FROM OPENAI ===")
+        print(f"Raw response: {scan_result}")
+        for key, value in scan_result.items():
+            print(f"  {key}: {value!r} (type: {type(value).__name__})")
+
         # Validate the response has required fields
         required_fields = ["title", "description", "color", "warmth", "formality"]
         for field in required_fields:
@@ -44,7 +49,17 @@ async def scan_clothing(
                     detail=f"AI response missing required field: {field}"
                 )
 
-        return ScanResponse(**scan_result)
+        # Validate against schema
+        try:
+            response = ScanResponse(**scan_result)
+            print(f"✓ ScanResponse validation passed")
+            return response
+        except Exception as e:
+            print(f"✗ ScanResponse validation failed: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"AI response validation failed: {str(e)}"
+            )
 
     except HTTPException:
         raise
